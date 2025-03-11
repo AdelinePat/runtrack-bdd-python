@@ -21,19 +21,32 @@ class Employees():
             self.employee_database.commit()
     # Read
     def display_employee(self, lastname, firstname):
+        print(f"\n ### Information de l'employé {lastname} ###")
         self.cursor.execute(f"SELECT * FROM employee WHERE lastname = '{lastname}' AND firstname = '{firstname}';")
         return self.cursor.fetchall()
     
     def display_all_employee(self):
+        print(f"\n ### Liste de tous les employés ###")
         self.cursor.execute(f"TABLE employee")
         employees = self.cursor.fetchall()
 
         for employee in employees:
             self.cursor.execute(f"SELECT service_name FROM service WHERE id = {employee[4]}")
             service_name = self.cursor.fetchone()
-            print(f"{employee[0]} | {employee[1]} {employee[2]} | {employee[3]} | {service_name[0]}")
+            print(f"{employee[0]} | {employee[1]} {employee[2]} | {employee[3]}€ | {service_name[0]}")
+
+    def display_from_salary(self, salary):
+        print(f"\n ### Liste des employés ayant un salaire supérieur à {salary}€ ###")
+        self.cursor.execute(f"SELECT * FROM employee WHERE salary > {salary};")
+        people = self.cursor.fetchall()
+
+        for person in people:
+            self.cursor.execute(f"SELECT service_name FROM service WHERE id = {person[4]}")
+            service_name = self.cursor.fetchone()
+            print(f"Nom : {person[1]} | Prénom : {person[2]} | Salaire : {person[3]}€ | Service : {service_name[0]}")
     
     def display_services(self):
+        print(f"\n ### Liste des services de l'entreprise ###")
         self.cursor.execute("TABLE service")
         services = self.cursor.fetchall()
 
@@ -150,13 +163,12 @@ def main():
             my_employees.add_employee('Lambert', 'Claire', 2600, 0)
             my_employees.add_employee('Martin', 'Lucas', 2900.5, 1)
        
-        cursor.execute("SELECT * FROM employee WHERE salary > 3000;")
-        hight_salary = cursor.fetchall()
-        print(hight_salary)
+        my_employees.display_from_salary(3000)
+        
+        my_employees.display_from_salary(2000)
 
         my_employees.update_info("id_service", 5, "Lambert", "Claire")
 
-        print(" ### ### ###")
         my_employees.display_services()
         my_employees.display_all_employee()
 
