@@ -10,14 +10,14 @@ mydb = mysql.connector.connect(
 if mydb.is_connected():
   
     cursor = mydb.cursor()
-    cursor.execute("SELECT area FROM etage;")
-    areas = cursor.fetchall()
+    cursor.execute("SELECT SUM(area) FROM etage;")
+    surface_area = cursor.fetchone()[0]
     # print(areas)
 
-    surface_area = 0
-    for area in areas:
-        print(area[0])
-        surface_area += area[0]
+    # surface_area = 0
+    # for area in areas:
+    #     print(area[0])
+    #     surface_area += area[0]
     cursor.close()
 
 mydb.close()
