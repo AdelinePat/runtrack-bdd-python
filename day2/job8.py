@@ -139,7 +139,7 @@ class ZooData():
 
 def main():
     my_database = DatabaseZoo()
-    my_database.create_database() # add bool if database exist or not, if not create table and else, do not create table
+    my_database.create_database() # add bool if database exist or not, if not create table and else, do not create
     zoo_database = my_database.connect_to_database("zoo_base")
     if zoo_database.is_connected():
         cursor = zoo_database.cursor()
@@ -192,4 +192,7 @@ def main():
 
         # print(my_employees.display_all_employee())
 
-        cursor.close()DATABASE
+        cursor.close()
+    zoo_database.close()
+    
+main()
