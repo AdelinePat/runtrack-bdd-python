@@ -29,7 +29,9 @@ class Employees():
         employees = self.cursor.fetchall()
 
         for employee in employees:
-            print(f"{employee[0]} | {employee[1]} {employee[2]} | {employee[3]} | {employee[4]}")
+            self.cursor.execute(f"SELECT service_name FROM service WHERE id = {employee[4]}")
+            service_name = self.cursor.fetchone()
+            print(f"{employee[0]} | {employee[1]} {employee[2]} | {employee[3]} | {service_name[0]}")
     
     def display_services(self):
         self.cursor.execute("TABLE service")
@@ -151,6 +153,8 @@ def main():
         cursor.execute("SELECT * FROM employee WHERE salary > 3000;")
         hight_salary = cursor.fetchall()
         print(hight_salary)
+
+        my_employees.update_info("id_service", 5, "Lambert", "Claire")
 
         print(" ### ### ###")
         my_employees.display_services()
