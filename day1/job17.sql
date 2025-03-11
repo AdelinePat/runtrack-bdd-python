@@ -1,5 +1,5 @@
-mysql> UPDATE etudiant
--> SET age = 20 WHERE id = 1;
+UPDATE etudiant
+SET age = 20 WHERE id = 1;
 Query OK, 1 row affected (0.02 sec)
 Rows matched: 1  Changed: 1  Warnings: 0
 

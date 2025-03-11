@@ -1,5 +1,5 @@
-mysql> SELECT * FROM etudiant
--> WHERE age = (SELECT MIN(age) FROM etudiant);
+SELECT * FROM etudiant
+WHERE age = (SELECT MIN(age) FROM etudiant);
 +----+----------+-----------+-----+-------------------------------+
 | id | lastname | firstname | age | email                         |
 +----+----------+-----------+-----+-------------------------------+

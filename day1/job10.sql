@@ -1,5 +1,6 @@
+-- Active: 1741679024806@@127.0.0.1@3306@laplateforme
 SELECT * FROM etudiant
--> ORDER BY age DESC;
+ORDER BY age DESC;
 
 +----+-----------+-----------+-----+---------------------------------+
 | id | lastname  | firstname | age | email                           |

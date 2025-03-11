@@ -1,4 +1,4 @@
-mysql> SELECT COUNT(*) FROM etudiant;
+SELECT COUNT(*) FROM etudiant;
 +----------+
 | COUNT(*) |
 +----------+
@@ -7,7 +7,7 @@ mysql> SELECT COUNT(*) FROM etudiant;
 1 row in set (0.02 sec)
 
 OU 
-mysql> SELECT COUNT(id) FROM etudiant;
+SELECT COUNT(id) FROM etudiant;
 +-----------+
 | COUNT(id) |
 +-----------+

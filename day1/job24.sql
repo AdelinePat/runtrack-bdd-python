@@ -1,4 +1,4 @@
-mysql> SELECT AVG(age) FROM etudiant;
+SELECT AVG(age) FROM etudiant;
 
 +----------+
 | AVG(age) |

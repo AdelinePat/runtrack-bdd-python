@@ -1,5 +1,5 @@
-mysql> SELECT * FROM etudiant
--> WHERE firstname = 'Gertrude' AND lastname = 'Dupuis';
+SELECT * FROM etudiant
+WHERE firstname = 'Gertrude' AND lastname = 'Dupuis';
 
 +----+----------+-----------+-----+---------------------------------+
 | id | lastname | firstname | age | email                           |

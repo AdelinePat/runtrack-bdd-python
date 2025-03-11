@@ -1,5 +1,5 @@
-mysql> SELECT * FROM etudiant
--> ORDER BY lastname;
+SELECT * FROM etudiant
+ORDER BY lastname;
 
 +----+-----------+-----------+-----+---------------------------------+
 | id | lastname  | firstname | age | email                           |

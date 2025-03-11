@@ -2,7 +2,7 @@ JOB 8 :
 mysqldump -u root -p LaPlateforme --tables etudiant --where="age < 18" > job8.sql
 
 Job 9 : 
-SELECT * FROM etudiant
+SELECT * FROM etu   diant
 ORDER BY age;
 
 +----+-----------+-----------+-----+---------------------------------+

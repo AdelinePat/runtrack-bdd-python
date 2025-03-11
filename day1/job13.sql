@@ -1,5 +1,5 @@
-mysql> SELECT * FROM etudiant
--> WHERE age >= 18 AND age <= 25;
+SELECT * FROM etudiant
+WHERE age >= 18 AND age <= 25;
 
 +----+-----------+-----------+-----+---------------------------------+
 | id | lastname  | firstname | age | email                           |

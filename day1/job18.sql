@@ -1,4 +1,4 @@
-mysql> DELETE FROM etudiant WHERE id = 3;
+DELETE FROM etudiant WHERE id = 3;
 Query OK, 1 row affected (0.02 sec)
 
 mysql> TABLE etudiant;

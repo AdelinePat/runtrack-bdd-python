@@ -1,9 +1,9 @@
-mysql>  INSERT INTO etudiant (lastname, firstname, age, email)
--> VALUES ("Dupuis", "Martin", 18, "martin.dupuis@laplateforme.io");
+INSERT INTO etudiant (lastname, firstname, age, email)
+VALUES ("Dupuis", "Martin", 18, "martin.dupuis@laplateforme.io");
 Query OK, 1 row affected (0.02 sec)
 
-mysql> SELECT * FROM etudiant
--> WHERE lastname = 'Dupuis';
+SELECT * FROM etudiant
+WHERE lastname = 'Dupuis';
 +----+----------+-----------+-----+---------------------------------+
 | id | lastname | firstname | age | email                           |
 +----+----------+-----------+-----+---------------------------------+

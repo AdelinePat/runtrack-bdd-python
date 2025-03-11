@@ -1,5 +1,5 @@
-mysql> SELECT * FROM etudiant
--> WHERE firstname LIKE 'b%';
+SELECT * FROM etudiant
+WHERE firstname LIKE 'b%';
 
 +----+-----------+-----------+-----+---------------------------------+
 | id | lastname  | firstname | age | email                           |

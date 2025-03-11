@@ -1,5 +1,5 @@
-mysql> SELECT * FROM etudiant
--> WHERE age = (SELECT MAX(age) FROM etudiant);
+SELECT * FROM etudiant
+WHERE age = (SELECT MAX(age) FROM etudiant);
 
 +----+----------+-----------+-----+-----------------------------+
 | id | lastname | firstname | age | email                       |
