@@ -6,9 +6,19 @@ class Employees():
         self.employee_database = employee_database
 
     # Create
-    def add_employee(self, lastname, firstname, salary, id_service):
-        self.cursor.execute(f"INSERT INTO employee (lastname, firstname, salary, id_service) VALUES ('{lastname}', '{firstname}', {salary}, {id_service});")
+    def add_service(self, service_name):
+        self.cursor.execute(f"INSERT INTO service (service_name) VALUES ('{service_name}');")
         self.employee_database.commit()
+
+    def add_employee(self, lastname, firstname, salary, id_service):
+        self.cursor.execute(f"SELECT lastname FROM employee WHERE lastname = '{lastname}' AND firstname = '{firstname}' AND salary = {salary} AND id_service = {id_service};")
+        employee = self.cursor.fetchall()
+
+        if bool(employee):
+            print("Vous ne pouvez pas créer 2 employés identitques")
+        else:
+            self.cursor.execute(f"INSERT INTO employee (lastname, firstname, salary, id_service) VALUES ('{lastname}', '{firstname}', {salary}, {id_service});")
+            self.employee_database.commit()
     # Read
     def display_employee(self, lastname, firstname):
         self.cursor.execute(f"SELECT * FROM employee WHERE lastname = '{lastname}' AND firstname = '{firstname}';")
@@ -20,6 +30,13 @@ class Employees():
 
         for employee in employees:
             print(f"{employee[0]} | {employee[1]} {employee[2]} | {employee[3]} | {employee[4]}")
+    
+    def display_services(self):
+        self.cursor.execute("TABLE service")
+        services = self.cursor.fetchall()
+
+        for service in services:
+            print(f"ID : {service[0]} | NOM : {service[1]}")
 
     # Update
     def update_info(self, info_to_change, new_value, lastname, firstname):
@@ -32,6 +49,7 @@ class Employees():
         elif info_to_change == "firstname":
             self.cursor.execute(f"UPDATE employee SET firstname = '{new_value}' WHERE lastname = '{lastname}' and firstname = '{firstname}';")
         self.employee_database.commit()
+
     # Delete
     def delete_employee(self, lastname, firstname):
         self.cursor.execute(f"SELECT * FROM employee WHERE lastname = '{lastname}' and firstname = '{firstname}';")
@@ -116,7 +134,11 @@ def main():
         my_employees = Employees(employee_database, cursor)
 
         if not my_database.is_table_full(cursor, 'service'):
-            cursor.execute("INSERT INTO service (service_name) VALUES ('Logistique'),('Ressource Humaine'), ('Informatique'), ('Marketing'), ('Finance');")
+            my_employees.add_service('Logistique')
+            my_employees.add_service('Ressource Humaine')
+            my_employees.add_service('Informatique')
+            my_employees.add_service('Marketing')
+            my_employees.add_service('Finance')
         
         if not my_database.is_table_full(cursor, 'employee'):
             my_employees.add_employee('Dupont', 'Marie', 3200.0, 1)
@@ -131,11 +153,13 @@ def main():
         print(hight_salary)
 
         print(" ### ### ###")
+        my_employees.display_services()
         my_employees.display_all_employee()
 
         print(my_employees.display_employee('Martin', 'Lucas'))
 
         my_employees.delete_employee('Bernard', 'Sophie')
+        my_employees.add_employee('Bahl', 'Safia', 1400.75, 3)
 
         print(my_employees.display_all_employee())
 
