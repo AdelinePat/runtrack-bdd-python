@@ -11,7 +11,6 @@ class DatabaseZoo():
         )
         return database_connection
         
-
     def create_database(self):
         my_server = mysql.connector.connect(
             host="localhost",
@@ -59,6 +58,70 @@ class ZooData():
     def __init__(self, database, cursor):
         self.cursor = cursor
         self.database = database
+    
+    def is_cage_empty(self, cage_id):
+        check_cage = f"SELECT name FROM animal WHERE cage_id = {cage_id};"
+        self.cursor.execute(check_cage)
+        is_full = self.cursor.fetchone()
+        if not is_full:
+            return True
+        else:
+            return False
+    
+    def check_breed(self, cage_id, breed):
+        if self.is_cage_empty(cage_id) == True:
+            return True
+        else:
+            check_breed = f"SELECT breed FROM animal WHERE cage_id = {cage_id};"
+            self.cursor.execute(check_breed)
+            breeds = self.cursor.fetchall()
+
+            for breed_query in breeds:
+                if breed_query[0] == breed:
+                    return True
+                else:
+                    return False
+            
+    def check_max_capacity(self, cage_id):
+        query = f"SELECT COUNT(*) FROM animal WHERE cage_id = {cage_id};"
+        self.cursor.execute(query)
+        final_number = self.cursor.fetchone()[0]
+
+        check_max_capacity = f"SELECT max_capacity FROM cage WHERE id = {cage_id}"
+        self.cursor.execute(check_max_capacity)
+        max_capacity = self.cursor.fetchone()[0]
+
+        if final_number == max_capacity:
+            return True
+        else:
+            return False
+        
+    def does_animal_exist(self, name, breed, birthday):
+        query = f"SELECT name FROM animal WHERE name = '{name}' AND breed = '{breed}' AND birthday = {birthday};"
+        self.cursor.execute(query)
+        does_exist = self.cursor.fetchone()
+        if does_exist == None:
+            return False
+        else:
+            return True
+        
+    def is_cage(self, cage_id):
+        query = f"SELECT id FROM cage WHERE id = '{cage_id}';"
+        self.cursor.execute(query)
+        does_exist = self.cursor.fetchone()
+        if does_exist == None:
+            return False
+        else:
+            return True
+
+    def is_empty(self, cage_id):
+        query = f"SELECT COUNT(*) FROM animal WHERE cage_id = {cage_id};"
+        self.cursor.execute(query)
+        does_exist = self.cursor.fetchone()
+        if does_exist[0] > 0:
+            return False
+        else:
+            return True
 
     # Create
     def add_cage(self, area, max_capacity):
@@ -68,74 +131,128 @@ class ZooData():
         self.database.commit()
 
     def add_animal(self, name, breed, cage_id, birth, country):
-        check_query = f"SELECT name FROM animal WHERE name = '{name}' AND breed = '{breed}';"
-        self.cursor.execute(check_query)
-        if bool(self.cursor.fetchall()):
+        if self.does_animal_exist(name, breed, birth):
             print("Vous ne pouvez pas ajouter deux fois le même animal")
+        elif not self.check_breed(cage_id, breed):
+            print("Vous ne pouvez pas ajouter deux animaux de races différentes dans la même cage.")
+        elif self.check_max_capacity(cage_id):
+            print("La cage que vous avez choisi a atteint sa capacité maximum, vous ne pouvez pas y ajouter d'animal.")
         else:
             values = (name, breed, cage_id, birth, country)
             query = f"INSERT INTO animal (name, breed, cage_id, birthday, country) VALUES {values};"
             self.cursor.execute(query)
             self.database.commit()
 
-#     # Read
-#     def display_employee(self, lastname, firstname):
-#         print(f"\n ### Information de l'employé {lastname} ###")
-#         self.cursor.execute(f"SELECT * FROM employee WHERE lastname = '{lastname}' AND firstname = '{firstname}';")
-#         return self.cursor.fetchall()
-    
-#     def display_all_employee(self):
-#         print(f"\n ### Liste de tous les employés ###")
-#         self.cursor.execute(f"TABLE employee")
-#         employees = self.cursor.fetchall()
+            self.display_an_animal(name, breed, birth)
 
-#         for employee in employees:
-#             self.cursor.execute(f"SELECT service_name FROM service WHERE id = {employee[4]}")
-#             service_name = self.cursor.fetchone()
-#             print(f"{employee[0]} | {employee[1]} {employee[2]} | {employee[3]}€ | {service_name[0]}")
+    # Read   
+    def display_all_zoo(self):
+        query = f"SELECT * FROM animal;"
+        self.cursor.execute(query)
+        animals = self.cursor.fetchall()
 
-#     def display_from_salary(self, salary):
-#         print(f"\n ### Liste des employés ayant un salaire supérieur à {salary}€ ###")
-#         self.cursor.execute(f"SELECT * FROM employee WHERE salary > {salary};")
-#         people = self.cursor.fetchall()
+        print("__ INFORMATIONS DU ZOO __")
 
-#         for person in people:
-#             self.cursor.execute(f"SELECT service_name FROM service WHERE id = {person[4]}")
-#             service_name = self.cursor.fetchone()zoo_base
-#             print(f"Nom : {person[1]} | Prénom : {person[2]} | Salaire : {person[3]}€ | Service : {service_name[0]}")
-    
-#     def display_services(self):
-#         print(f"\n ### Liste des services de l'entreprise ###")
-#         self.cursor.execute("TABLE service")
-#         services = self.cursor.fetchall()
+        print("\nANIMAUX")
+        for animal in animals:
+            self.display_an_animal(animal[1],animal[2],animal[4])
+        print("\n")
 
-#         for service in services:
-#             print(f"ID : {service[0]} | NOM : {service[1]}")
+        second_query = f"SELECT * FROM cage;"
+        self.cursor.execute(second_query)
+        cages = self.cursor.fetchall()
+
+        print("\nCAGES")
+        for cage in cages:
+            print(f"ID : {cage[0]:03d}  |",
+                f"SUPERFICIE : {cage[1]:03d}m² |",
+                f"CAPACITE : {cage[2]:03d}", sep="")
+        print("\n")
+
+    def get_all_cage_areas(self):
+        query = "SELECT SUM(area) FROM cage;"
+        self.cursor.execute(query)
+        areas = self.cursor.fetchone()[0]
+        print(f"La surperficie de toutes les cages est de {areas}m²")
+
+    def display_an_animal(self, name, breed, birth):
+        query = f"SELECT * FROM animal WHERE name = '{name}' AND breed = '{breed}' AND birthday = {birth};"
+        self.cursor.execute(query)
+        animal_info = self.cursor.fetchall()
+
+        for info in animal_info:
+            print(f"ID : {info[0]:<3}|",
+                f"NOM : {info[1]:<15}|",
+                f"RACE : {info[2]:<15}|",
+                f"ANNEE : {info[4]:<6}|",
+                f"PAYS : {info[5]:<20}|",
+                f"CAGE N°{info[3]:<3}", sep="")
+
+    def display_all_animals_in_cage(self, cage_id):
+        query = f"SELECT * FROM animal WHERE cage_id = {cage_id};"
+        self.cursor.execute(query)
+        animals = self.cursor.fetchall()
+
+        for animal in animals:
+            print(f"ID : {animal[0]:<3}|",
+                f"NOM : {animal[1]:<15}|",
+                f"RACE : {animal[2]:<15}|",
+                f"ANNEE : {animal[4]:<6}|",
+                f"PAYS : {animal[5]:<20}|",
+                f"CAGE N°{animal[3]:<3}", sep="")
+        print("\n")
 
     # Update
-    def update_info(self, info_to_change, new_value, lastname, firstname):
-        if info_to_change == "salary":
-            self.cursor.execute(f"UPDATE employee SET salary = {new_value} WHERE lastname = '{lastname}' and firstname = '{firstname}';")
-        elif info_to_change == "id_service":
-            self.cursor.execute(f"UPDATE employee SET id_service = {new_value} WHERE lastname = '{lastname}' and firstname = '{firstname}';")
-        elif info_to_change == "lastname":
-            self.cursor.execute(f"UPDATE employee SET lastname = '{new_value}' WHERE lastname = '{lastname}' and firstname = '{firstname}';")
-        elif info_to_change == "firstname":
-            self.cursor.execute(f"UPDATE employee SET firstname = '{new_value}' WHERE lastname = '{lastname}' and firstname = '{firstname}';")
-        self.employee_database.commit()
+    def change_cage(self, new_cage_id, name, breed):
+        if self.check_breed(new_cage_id, breed):
+            query = f"UPDATE animal SET cage_id = {new_cage_id} WHERE name = '{name}' and breed = '{breed}';"
+            self.cursor.execute(query)
+            self.database.commit()
+        else:
+            print("La nouvelle cage que vous avez choisi a contient un animal qui ne peut pas s'entendre avec l'animal à déplacer (prédateur - proie).")
+
+    def change_name(self, new_name, name, breed, birth):
+        if self.does_animal_exist(name, breed, birth):
+            query = f"UPDATE animal SET name = '{new_name}' WHERE name = '{name}' AND breed = '{breed}' AND birthday = {birth};"
+            self.cursor.execute(query)
+            self.cursor.fetchone()
+            self.database.commit()
+        else:
+            print("Vous ne pouvez pas modifier le nom d'un animal avec le nom d'un animal de la même race déjà existant")
+
+    def change_breed(self, new_breed, name, breed, birth):
+        if self.does_animal_exist(name, breed, birth):
+            query = f"UPDATE animal SET breed = {new_breed} WHERE name = '{name}' and breed = '{breed}';"
+            self.cursor.execute(query)
+            self.database.commit()
+        else:
+            print("Vous ne pouvez pas modifier la race d'un animal avec la race d'un animal du même nom déjà existant")
+
+    def change_birthday(self, new_birthday, name, breed):
+        query = f"UPDATE animal SET birthday = {new_birthday} WHERE name = '{name}' and breed = '{breed}';"
+        self.cursor.execute(query)
+        self.database.commit()
+    
+    def change_cage_max_capacity(self, new_value, id):
+        self.cursor.execute(f"UPDATE cage SET max_capacity = {new_value} WHERE id = '{id}';")
+        self.database.commit()
 
     # Delete
-    def delete_employee(self, lastname, firstname):
-        self.cursor.execute(f"SELECT * FROM employee WHERE lastname = '{lastname}' and firstname = '{firstname}';")
-        employee = self.cursor.fetchall()
-        if not bool(employee):
-            print("Vous ne pouvez pas supprimer un(e) employé(e) inexistant(e).")
+    def move_away_animal(self, name, breed, birth):
+        if self.does_animal_exist(name, breed, birth):
+            query = f"DELETE FROM animal WHERE name = '{name}' AND breed = '{breed}' AND birthday = {birth};"
+            self.cursor.execute(query)
+            self.database.commit()
         else:
-            info = self.display_employee(lastname, firstname)
-            self.cursor.execute(f"DELETE FROM employee WHERE lastname = '{lastname}' AND firstname = '{firstname}';")
-            self.employee_database.commit()
-            print(f"{info}\
-                \nl'employé(e) {lastname} {firstname} a bien été supprimé(e) de la base de données")
+            print("Vous ne pouvez pas déplacer un animal inexistant.")
+    
+    def delete_cage(self, cage_id):
+        if self.is_cage(cage_id) and self.is_empty(cage_id):
+            query = f"DELETE FROM cage WHERE id = '{cage_id}';"
+            self.cursor.execute(query)
+            self.database.commit()
+        else:
+            print("Vous ne pouvez pas supprimer une cage inexistante.")
 
 def main():
     my_database = DatabaseZoo()
@@ -143,7 +260,6 @@ def main():
     zoo_database = my_database.connect_to_database("zoo_base")
     if zoo_database.is_connected():
         cursor = zoo_database.cursor()
-        # table_name, values
         cage_values = f"(id INT PRIMARY KEY AUTO_INCREMENT NOT NULL, \
                 area INT NOT NULL, \
                 max_capacity INT)"
@@ -155,7 +271,8 @@ def main():
                 breed VARCHAR (255) NOT NULL, \
                 cage_id INT NOT NULL, \
                 birthday INT NOT NULL, \
-                country VARCHAR (255) NOT NULL)"
+                country VARCHAR (255) NOT NULL, \
+                FOREIGN KEY (cage_id) REFERENCES cage(id))"
         
         my_database.create_tables(cursor, 'animal', f"{animal_values}")
         my_zoo = ZooData(zoo_database, cursor)
@@ -168,30 +285,29 @@ def main():
             my_zoo.add_cage(15, 2)
         
         if not my_database.is_table_full(cursor, 'animal'):
-            # name, breed, cage_id, birth, country
             my_zoo.add_animal('Simba', 'Lion', 2, 2016, 'Afrique du Sud')
             my_zoo.add_animal('Luna', 'Panda géant', 3, 2018, 'Chine')
             my_zoo.add_animal('Balthazar', 'Girafe', 4, 2014, 'Kenya')
-            my_zoo.add_animal('Maximus', 'Gorille', 5, 2015, 'République du Congo')
-            my_zoo.add_animal('Pongo', 'Orang-outan', 5, 2013, 'Malaisie')
+            my_zoo.add_animal('Maximus', 'Singe', 5, 2015, 'République du Congo')
+            my_zoo.add_animal('Pongo', 'Singe', 5, 2013, 'Malaisie')
             my_zoo.add_animal('Toto', 'Crocodile', 1, 2010, 'Égypte')
-       
-        # my_employees.display_from_salary(3000)
         
-        # my_employees.display_from_salary(2000)
+        my_zoo.add_animal('Croco', 'Crocodile', 1, 2003, 'Égypte')
 
-        # my_employees.update_info("id_service", 5, "Lambert", "Claire")
+        my_zoo.change_cage(2, 'Luna', 'Panda géant')
 
-        # my_employees.display_services()
-        # my_employees.display_all_employee()
+        my_zoo.change_name('Louna', 'Luna', 'Panda Géant', 2018)
+        my_zoo.display_an_animal('Louna', 'Panda Géant', 2018)
 
-        # print(my_employees.display_employee('Martin', 'Lucas'))
+        my_zoo.move_away_animal('Louna', 'Panda Géant', 2018)
+        my_zoo.delete_cage(7)
+        my_zoo.delete_cage(3)
 
-        # my_employees.delete_employee('Bernard', 'Sophie')
-        # my_employees.add_employee('Bahl', 'Safia', 1400.75, 3)
+        my_zoo.add_cage(150, 7)
+        
+        my_zoo.display_all_zoo()
 
-        # print(my_employees.display_all_employee())
-
+        my_zoo.get_all_cage_areas()
         cursor.close()
     zoo_database.close()
     
