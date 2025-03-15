@@ -6,7 +6,7 @@ class DatabaseZoo():
         database_connection = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="",
+        password="123456",
         database = database_name
         )
         return database_connection
@@ -15,7 +15,7 @@ class DatabaseZoo():
         my_server = mysql.connector.connect(
             host="localhost",
             user="root",
-            password=""
+            password="123456"
         )
 
         if my_server.is_connected():
